@@ -226,10 +226,10 @@ bool InjectBypass()
         std::cout << "[Client] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
     if (dwCounts > 1)
         std::cout << "[Client] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
-    std::cout << "[Client] [>>] Waiting for " << MAIN_GAME_NAME << std::endl;
+    std::cout << "[Client] [>>] Waiting for " << GAME_EXE << std::endl;
     std::cout << "[Client] ================================================================" << std::endl;
     lastId = 0;
-    while (!(lastId = GetProcessId(MAIN_GAME_NAME)))
+    while (!(lastId = GetProcessId(GAME_EXE)))
         Sleep(50);
     gId = lastId;
     hProcess = INVALID_HANDLE_VALUE;

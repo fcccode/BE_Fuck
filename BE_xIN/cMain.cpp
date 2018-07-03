@@ -5,10 +5,16 @@ void MyOutputDebugString(LPCSTR lpszFormat, ...)
     if (lpszFormat == NULL) return;
     va_list arglist;
     va_start(arglist, lpszFormat);
-    char outputstr[4095];
-    vsprintf_s(outputstr, lpszFormat, arglist);
-    OutputDebugStringA(outputstr);
+    char str[4095];
+    vsprintf_s(str, lpszFormat, arglist);
+    size_t len = strlen(str);
+    if (str[len - 1] != '\n') {
+        str[len] = '\n';
+        str[len + 1] = 0;
+    }
+    OutputDebugStringA(str);
 }
+
 
 bool InjectBypass()
 {
@@ -247,10 +253,10 @@ bool InjectBypass()
         std::cout << "[Client_BE] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
     if (dwCounts > 1)
         std::cout << "[Client_BE] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
-    std::cout << "[Client_BE] [>>] Waiting for " << GAME_NAME << std::endl;
+    std::cout << "[Client_BE] [>>] Waiting for " << GAME_BE_EXE << std::endl;
     std::cout << "[Client_BE] ================================================================" << std::endl;
     lastId = 0;
-    while (!(lastId = GetProcessId(GAME_NAME)))
+    while (!(lastId = GetProcessId(GAME_BE_EXE)))
         Sleep(50);
     gId = lastId;
     hProcess = INVALID_HANDLE_VALUE;
@@ -308,7 +314,7 @@ bool InjectBypass()
         goto END;
     }
 
-    std::cout << "[Client_BE] Hook: Path has been written." << std::endl;
+    std::cout << "[Client_BE] Hook: Path has been written " << Path << std::endl;
 
     hThread = CreateRemoteThread(hProcess, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(lpLoadLibAddress), lpString, 0, &TID);
     if (!hThread)
@@ -363,14 +369,14 @@ int main()
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     }
     if (ControlDriver("BEService.exe", FALSE))
-        std::cout << "[Client_BE] ControlDriver returned TRUE." << std::endl;
+        std::cout << "[Client_BE] Stop service " << SERVICE_NAME << " returned TRUE." << std::endl;
     else
-        std::cout << "[Client_BE] ControlDriver returned FALSE. (see DebugView for more information)" << std::endl;
+        std::cout << "[Client_BE] Stop service " << SERVICE_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
     Sleep(220); // wait for delete service
     if (ControlDriver("BEService.exe", TRUE))
-        std::cout << "[Client_BE] ControlDriver returned TRUE." << std::endl;
+        std::cout << "[Client_BE] Start service " << SERVICE_NAME << " returned TRUE." << std::endl;
     else
-        std::cout << "[Client_BE] ControlDriver returned FALSE. (see DebugView for more information)" << std::endl;
+        std::cout << "[Client_BE] Start service " << SERVICE_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
     while (true)
     {
         Sleep(520);

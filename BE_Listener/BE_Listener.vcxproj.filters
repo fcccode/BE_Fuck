@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="头文件">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -15,37 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Kernelmode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Usermode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Listener.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CMain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DbgLog.hpp">
+    <ClInclude Include="cMain.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Options.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Includes.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Kernelmode.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Module.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Usermode.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Listener.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cMain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

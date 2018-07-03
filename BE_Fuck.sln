@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BEService", "BEService\BESe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BE_Proxy", "BE_Proxy\BE_Proxy.vcxproj", "{10CF9400-3D01-48E7-B618-B4B79C187BF8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BE_Listener", "BE_Listener\BE_Listener.vcxproj", "{8007C474-6101-4C25-809F-8959ACCF37CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{10CF9400-3D01-48E7-B618-B4B79C187BF8}.Release|x64.Build.0 = Release|x64
 		{10CF9400-3D01-48E7-B618-B4B79C187BF8}.Release|x86.ActiveCfg = Release|Win32
 		{10CF9400-3D01-48E7-B618-B4B79C187BF8}.Release|x86.Build.0 = Release|Win32
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Debug|x64.ActiveCfg = Debug|x64
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Debug|x64.Build.0 = Debug|x64
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Debug|x86.ActiveCfg = Debug|Win32
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Debug|x86.Build.0 = Debug|Win32
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Release|x64.ActiveCfg = Release|x64
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Release|x64.Build.0 = Release|x64
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Release|x86.ActiveCfg = Release|Win32
+		{8007C474-6101-4C25-809F-8959ACCF37CE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

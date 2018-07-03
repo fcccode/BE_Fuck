@@ -3,6 +3,11 @@
 int main()
 {
 	VirtualizerStart();
+    OutputDebugStringA("[Starter] OutputDebugStringA test\n");
+    OutputDebugStringW(L"[Starter] OutputDebugStringW test\n");
+    // getchar();
+    // ExitProcess(0);
+
 	BOOL IsWow64 = 0;
 	STARTUPINFOA si;
 	PROCESS_INFORMATION pi;
@@ -53,6 +58,9 @@ int main()
 	Sleep(300);
 	if (!IsWow64) // !IsWow64 = Is64    Wow64 = 64位操作系统的32环境
 	{
+        std::cout << "64 bit operation system detected." << std::endl;
+        std::cout << "start: "<< Client64 << std::endl;
+
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 		ZeroMemory(&si, sizeof(si));
@@ -66,10 +74,13 @@ int main()
 			goto END;
 		}
 		
-		std::cout << "64 bit operation system detected." << std::endl;
+
 	}
 	else
 	{
+        std::cout << "32 bit operation system detected." << std::endl;
+        std::cout << "start: " << Client << std::endl;
+
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 		ZeroMemory(&si, sizeof(si));
@@ -82,7 +93,6 @@ int main()
 			std::cout << "[ERROR] : Path " << Client << std::endl;
 			goto END;
 		}
-		std::cout << "32 bit operation system detected." << std::endl;
 	}
 	Sleep(100);
 	CloseHandle(pi.hProcess);
@@ -90,6 +100,7 @@ int main()
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
+    std::cout << "start: " << Client_BE << std::endl;
 	if (!CreateProcessA(0, Client_BE, 0, 0, 0, 0, 0, 0, &si, &pi))
 	{
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);

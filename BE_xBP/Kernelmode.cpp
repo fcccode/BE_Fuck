@@ -1,15 +1,5 @@
 #include "Kernelmode.hpp"
 
-void MyOutputDebugString(LPCSTR lpszFormat, ...)
-{
-	if (lpszFormat == NULL) return;
-	va_list arglist;
-	va_start(arglist, lpszFormat);
-	char outputstr[4095];
-	vsprintf_s(outputstr, lpszFormat, arglist);
-	OutputDebugStringA(outputstr);
-}
-
 namespace BE
 {
 	namespace Kernelmode
@@ -90,18 +80,19 @@ namespace BE
 				wcsstr(ObjectAttributes->ObjectName->Buffer, L"BattlEye") &&
 				wcsstr(ObjectAttributes->ObjectName->Buffer, L"pipe")) // the pipename is \\??\\pipe\\BattlEye 内核名字和应用层不一样
 			{
+                
 				/*
 				if (GetModuleHandleA(MAIN_GAME_NAME)) {
-					MyOutputDebugString("Unturned.exe NtCreateFile_Hook:");
+					DbgLog::Log("Unturned.exe NtCreateFile_Hook:\n");
 					OutputDebugStringW(ObjectAttributes->ObjectName->Buffer);
 				}
 				if (GetModuleHandleA(GAME_NAME)) {
-					MyOutputDebugString("Unturned_BE.exe NtCreateFile_Hook:");
+					DbgLog::Log("Unturned_BE.exe NtCreateFile_Hook:\n");
 					OutputDebugStringW(ObjectAttributes->ObjectName->Buffer);
 				}
 				*/
 
-				// OutputDebugStringA("NtCreateFile_Hook: pipe hooked");
+				// OutputDebugStringA("NtCreateFile_Hook: pipe hooked \n");
 				o_RtlInitUnicodeString(ObjectAttributes->ObjectName, SERVICE_PROXY_KERNEL);
 				NTSTATUS Status = o_NtCreateFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
 				// o_RtlInitUnicodeString(ObjectAttributes->ObjectName, SERVICE_PIPE_KERNEL); doesn't work
@@ -143,7 +134,7 @@ namespace BE
 						FileHandle = search->second;
 					}
 					else {
-						OutputDebugStringA("[DLL_HOOK] Unturned_BE.exe ZwReadFile_Hook: Handle not found");
+						OutputDebugStringA("[DLL_HOOK] Unturned_BE.exe ZwReadFile_Hook: Handle not found\n");
 					}
 				}
 			}
@@ -162,7 +153,7 @@ namespace BE
 						FileHandle = search->second;
 					}
 					else {
-						OutputDebugStringA("[DLL_HOOK] Unturned_BE.exe ZwReadFile_Hook: Handle not found");
+						OutputDebugStringA("[DLL_HOOK] Unturned_BE.exe ZwReadFile_Hook: Handle not found\n");
 					}
 				}
 			}

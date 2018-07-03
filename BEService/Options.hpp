@@ -5,5 +5,6 @@
 #define SERVICE_NAME "BEService2"
 
 #define USE_VMPROTECT 0
-#define HWID_PROTECTION 1
+#define HWID_PROTECTION 0 
+#define TRANS_TO_REAL_BESERVICE 0 /*是否转发到真的 BEService*/
 

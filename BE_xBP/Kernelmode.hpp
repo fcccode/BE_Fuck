@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes.hpp"
+#include "DbgLog.hpp"
 
 namespace  BE
 {
