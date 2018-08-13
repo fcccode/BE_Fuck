@@ -352,6 +352,7 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
         if (!(g_PipeThread = CreateThread(0, 0, PipeHandleThread, g_PipeHandle, 0, 0)))
         {
             StopMyService("[BEService] CreateThread failed.");
+            VirtualFree(SecurityDescriptor, 0x1000, MEM_DECOMMIT);
             return FALSE;
         }
         Threads.push_back(g_PipeThread);
