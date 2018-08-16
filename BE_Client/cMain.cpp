@@ -1,4 +1,4 @@
-#include "CMain.hpp"
+#include "cMain.hpp"
 
 //=======================================================================================================================================================
 
@@ -30,7 +30,7 @@ bool InjectBypass()
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    auto GetProcessId = [](char* ProcessName)->DWORD
+    auto GetProcessId = [](const char* ProcessName)->DWORD
     {
         VirtualizerStart();
         PROCESSENTRY32 pe32;
@@ -41,7 +41,7 @@ bool InjectBypass()
         if (hSnapshot == INVALID_HANDLE_VALUE || hSnapshot == 0)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_Game] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             return false;
         }
@@ -49,7 +49,7 @@ bool InjectBypass()
         if (!Process32First(hSnapshot, &pe32))
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_Game] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
             CloseHandle(hSnapshot);
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             return false;
@@ -62,7 +62,7 @@ bool InjectBypass()
             if (!lstrcmpiA(pe32.szExeFile, ProcessName) &&
                 !Found)
             {
-                std::cout << "[Client] [>>] Process found! (ID : " << pe32.th32ProcessID << ")" << std::endl;
+                std::cout << "[Inject_Game] [>>] Process found! (ID : " << pe32.th32ProcessID << ")" << std::endl;
                 pProcessIds.push_back(pe32.th32ProcessID);
                 dwPid = pe32.th32ProcessID;
                 break;
@@ -155,7 +155,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [>>] [ERROR] : Administrative rights are needed for this bypass!" << std::endl;
+        std::cout << "[Inject_Game] [>>] [ERROR] : Administrative rights are needed for this bypass!" << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -165,7 +165,7 @@ bool InjectBypass()
     if (!GetFullPathNameA("BE_xBP_x64.dll", MAX_PATH, Path, 0))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
         Status = false;
         goto END;
     }
@@ -173,7 +173,7 @@ bool InjectBypass()
     if (!GetFullPathNameA("BE_xBP.dll", MAX_PATH, Path, 0))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
         Status = false;
         goto END;
     }
@@ -186,7 +186,7 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client] [ERROR] : OpenProcessToken failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_Game] [ERROR] : OpenProcessToken failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
@@ -195,7 +195,7 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client] [ERROR] : LookupPrivilegeValueA failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_Game] [ERROR] : LookupPrivilegeValueA failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
@@ -208,26 +208,26 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client] [ERROR] : AdjustTokenPrivileges failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_Game] [ERROR] : AdjustTokenPrivileges failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
     }
 
-    std::cout << "[Client] ================================================================" << std::endl;
-    std::cout << "[Client] =================";
+    std::cout << "[Inject_Game] ================================================================" << std::endl;
+    std::cout << "[Inject_Game] =================";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
     std::cout << " [BattlEye Bypass] ";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     std::cout << "================" << std::endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-    std::cout << "[Client] ================================================================" << std::endl;
+    std::cout << "[Inject_Game] ================================================================" << std::endl;
     if (dwCounts == 1)
-        std::cout << "[Client] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
+        std::cout << "[Inject_Game] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
     if (dwCounts > 1)
-        std::cout << "[Client] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
-    std::cout << "[Client] [>>] Waiting for " << GAME_EXE << std::endl;
-    std::cout << "[Client] ================================================================" << std::endl;
+        std::cout << "[Inject_Game] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
+    std::cout << "[Inject_Game] [>>] Waiting for " << GAME_EXE << std::endl;
+    std::cout << "[Inject_Game] ================================================================" << std::endl;
     lastId = 0;
     while (!(lastId = GetProcessId(GAME_EXE)))
         Sleep(50);
@@ -240,7 +240,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [>>] [ERROR] : CheckRemoteDebuggerPresent failed with errorcode (lpBaseOfDll) " << dwError << " or Debugger found " << isDebug << std::endl;
+        std::cout << "[Inject_Game] [>>] [ERROR] : CheckRemoteDebuggerPresent failed with errorcode (lpBaseOfDll) " << dwError << " or Debugger found " << isDebug << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -257,7 +257,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [>>] [ERROR] : GetProcessBase failed with errorcode (lpBaseOfDll)" << 0 << std::endl;
+        std::cout << "[Inject_Game] [>>] [ERROR] : GetProcessBase failed with errorcode (lpBaseOfDll)" << 0 << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -277,42 +277,42 @@ bool InjectBypass()
     if (!lpString)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [ERROR] : VirtualAllocEx failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [ERROR] : VirtualAllocEx failed with errorcode " << GetLastError() << std::endl;
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client] Hook: Path allocated at " << lpString << std::endl;
+    std::cout << "[Inject_Game] Hook: Path allocated at " << lpString << std::endl;
 
     if (!WriteProcessMemory(hProcess, lpString, Path, strlen(Path) + 1, 0))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [ERROR] : WriteProcessMemory failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [ERROR] : WriteProcessMemory failed with errorcode " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, lpString, strlen(Path), MEM_DECOMMIT);
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client] Hook: Path has been written." << std::endl;
+    std::cout << "[Inject_Game] Hook: Path has been written." << std::endl;
 
     hThread = CreateRemoteThread(hProcess, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(lpLoadLibAddress), lpString, 0, &TID);
     if (!hThread)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client] [ERROR] : CreateRemoteThread failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [ERROR] : CreateRemoteThread failed with errorcode " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, lpString, strlen(Path), MEM_DECOMMIT);
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client] Hook: Thread has been created! (ID : " << TID << ", HANDLE : " << hThread << ")" << std::endl;
+    std::cout << "[Inject_Game] Hook: Thread has been created! (ID : " << TID << ", HANDLE : " << hThread << ")" << std::endl;
 
     WaitForSingleObject(hThread, INFINITE);
 
     if (VirtualFreeEx(hProcess, lpString, strlen(Path) + 1, MEM_DECOMMIT) &&
         CloseHandle(hProcess))
     {
-        std::cout << "[Client] Hook: Path has been deallocated and the handle to the process has been closed." << std::endl;
+        std::cout << "[Inject_Game] Hook: Path has been deallocated and the handle to the process has been closed." << std::endl;
         goto END;
     }
 
@@ -323,7 +323,7 @@ END:
         CloseHandle(hProcess);
     hProcess = INVALID_HANDLE_VALUE;
 
-    std::cout << "[Client] Exit..." << std::endl;
+    std::cout << "[Inject_Game] Exit..." << std::endl;
 #if _DEBUG
     getchar();
 #else
@@ -344,7 +344,7 @@ int main()
     if (!SetConsoleTitleA("h644124123547569494"))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY);
-        std::cout << "[Client] [>>] [WARNING] : SetConsoleTitleA failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_Game] [>>] [WARNING] : SetConsoleTitleA failed with errorcode " << GetLastError() << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     }
     while (true)

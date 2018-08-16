@@ -1,11 +1,11 @@
 #include "Usermode.hpp"
 
 int __cdecl Hook_GetVer() {
-    DbgLog::Log("[BEClient_Hooked] GetVer");
+    DbgLog::Log("[BEInject_Game_Hooked] GetVer");
     return 0xF4;
 }
 int __cdecl Hook_Init() {
-    DbgLog::Log("[BEClient_Hooked] Init");
+    DbgLog::Log("[BEInject_Game_Hooked] Init");
     return 0;
 }
 
@@ -342,10 +342,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
 #if (LOG_NTQUERYVIRTUALMEMORY == 1)
                 DbgLog::Log("NtQueryVirtualMemory - %d, 0x%X", GetCurrentProcessId(), BaseAddress);
@@ -389,10 +389,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
 #if (LOG_NTWOW64QUERYVIRTUALMEMORY64 == 1)
                 DbgLog::Log("LOG_NTWOW64QUERYVIRTUALMEMORY64 - %d, 0x%X", GetCurrentProcessId(), BaseAddress);
@@ -413,7 +413,7 @@ namespace BE
             return 0;
         };
 
-        NTSTATUS NTAPI Bypass::NtOpenProcess_Hook(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PVOID ClientId)
+        NTSTATUS NTAPI Bypass::NtOpenProcess_Hook(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PVOID Inject_GameId)
         {
             VirtualizerStart();
 
@@ -429,32 +429,32 @@ namespace BE
             DWORD_PTR dwStartAddress = 0;
             HMODULE hModule = 0;
             DWORD ProcessId = 0;
-            PCLIENT_ID ClientID = reinterpret_cast<PCLIENT_ID>(ClientId);
+            PCLIENT_ID Inject_GameID = reinterpret_cast<PCLIENT_ID>(Inject_GameId);
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
-                if (ClientID->UniqueProcess != reinterpret_cast<HANDLE>(GetCurrentProcessId()))
+                if (Inject_GameID->UniqueProcess != reinterpret_cast<HANDLE>(GetCurrentProcessId()))
                 {
 #if (LOG_NTOPENPROCESS == 1)
-                    DbgLog::Log("NtOpenProcess - %d, %d", ClientID->UniqueProcess, GetCurrentProcessId());
+                    DbgLog::Log("NtOpenProcess - %d, %d", Inject_GameID->UniqueProcess, GetCurrentProcessId());
 #endif
                     *ProcessHandle = GetCurrentProcess();
                     return 0;
                 }
-                if (ClientID->UniqueProcess == reinterpret_cast<HANDLE>(GetCurrentProcessId()))
+                if (Inject_GameID->UniqueProcess == reinterpret_cast<HANDLE>(GetCurrentProcessId()))
                 {
 #if (LOG_NTOPENPROCESS == 1)
-                    DbgLog::Log("NtOpenProcess - %d, %d", ClientID->UniqueProcess, GetCurrentProcessId());
+                    DbgLog::Log("NtOpenProcess - %d, %d", Inject_GameID->UniqueProcess, GetCurrentProcessId());
 #endif
                 }
             }
             VirtualizerEnd();
-            Status = o_NtOpenProcess(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
+            Status = o_NtOpenProcess(ProcessHandle, DesiredAccess, ObjectAttributes, Inject_GameId);
 
             return Status;
         };
@@ -473,10 +473,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
                 if (lpdwProcessId)
                     *lpdwProcessId = GetCurrentProcessId();
@@ -535,10 +535,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
                 Status = o_NtQuerySystemInformation(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
                 if (NT_SUCCESS(Status))
@@ -594,10 +594,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &hModule) &&
                 GetModuleFileNameA(hModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
                 CloseHandle(ProcessHandle);
                 return true;
@@ -617,10 +617,10 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &wModule) &&
                 GetModuleFileNameA(wModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &wModule) &&
                 GetModuleFileNameA(wModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
                 if (NT_SUCCESS(Status) && pContext)
                 {
@@ -643,7 +643,7 @@ namespace BE
             return Status;
         }
 
-        NTSTATUS NTAPI Bypass::NtOpenThread_Hook(PHANDLE ThreadHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PVOID ClientId)
+        NTSTATUS NTAPI Bypass::NtOpenThread_Hook(PHANDLE ThreadHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PVOID Inject_GameId)
         {
             VirtualizerStart();
             typedef struct _CLIENT_ID {
@@ -654,23 +654,23 @@ namespace BE
             char Path[MAX_PATH];
             DWORD_PTR dwStartAddress = 0;
             HMODULE wModule = 0;
-            PCLIENT_ID ClientID = reinterpret_cast<PCLIENT_ID>(ClientId);
+            PCLIENT_ID Inject_GameID = reinterpret_cast<PCLIENT_ID>(Inject_GameId);
             ZeroMemory(Path, MAX_PATH);
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &wModule) &&
                 GetModuleFileNameA(wModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient") ||
+                strstr(Path, "BEInject_Game") ||
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(_ReturnAddress()), &wModule) &&
                 GetModuleFileNameA(wModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient"))
+                strstr(Path, "BEInject_Game"))
             {
 #if (LOG_NTOPENTHREAD == 1)
-                DbgLog::Log("NtOpenThread - %d, 0x%x", ClientID->UniqueThread, 0);
+                DbgLog::Log("NtOpenThread - %d, 0x%x", Inject_GameID->UniqueThread, 0);
 #endif
                 DesiredAccess = THREAD_TERMINATE;
             }
             VirtualizerEnd();
-            return o_NtOpenThread(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
+            return o_NtOpenThread(ThreadHandle, DesiredAccess, ObjectAttributes, Inject_GameId);
         }
 
         BOOL GetFileNameFromHandle(HANDLE hFile, std::string& fileName)
@@ -710,8 +710,8 @@ namespace BE
             if (NT_SUCCESS(o_NtQueryInformationThread(GetCurrentThread(), static_cast<THREADINFOCLASS>(9), &dwStartAddress, sizeof(DWORD_PTR), NULL)) &&
                 GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<char*>(dwStartAddress), &wModule) &&
                 GetModuleFileNameA(wModule, Path, MAX_PATH) &&
-                strstr(Path, "BEClient")
-                // || fileName.find("BEClient") != std::string::npos
+                strstr(Path, "BEInject_Game")
+                // || fileName.find("BEInject_Game") != std::string::npos
                 )
             {
                 //https://social.msdn.microsoft.com/Forums/vstudio/en-US/3decb49c-3418-42b8-a9fa-7e28f1c93757/stop-dll-injection?forum=vcgeneral
@@ -729,7 +729,7 @@ namespace BE
 
         NTSTATUS NTAPI Bypass::LdrLoadDll_Hook(IN PWCHAR PathToFile OPTIONAL, IN ULONG Flags OPTIONAL, IN PUNICODE_STRING ModuleFileName, OUT PHANDLE ModuleHandle) {
             NTSTATUS Status = o_LdrLoadDll(PathToFile, Flags, ModuleFileName, ModuleHandle);
-            if (NT_SUCCESS(Status) && wcsstr(ModuleFileName->Buffer, L"BEClient")) {
+            if (NT_SUCCESS(Status) && wcsstr(ModuleFileName->Buffer, L"BEInject_Game")) {
                 DbgLog::Log("[DISABLE_BECLIENT] LdrLoadDll_Hook Path: %ls\n", ModuleFileName->Buffer);
                 return Status;
             }
@@ -740,7 +740,7 @@ namespace BE
         NTSTATUS NTAPI Bypass::LdrGetProcedureAddressForCaller_Hook(__in HMODULE ModuleHandle, __in_opt PANSI_STRING FunctionName, __in_opt WORD Oridinal, __out PVOID *FunctionAddress, __in BOOL bValue, __in PVOID *CallbackAddress) {
             char Path[MAX_PATH] = { 0 };
 
-            if (GetModuleFileNameA(ModuleHandle, Path, MAX_PATH) && strstr(Path, "BEClient")) {
+            if (GetModuleFileNameA(ModuleHandle, Path, MAX_PATH) && strstr(Path, "BEInject_Game")) {
                 if (FunctionName)
                     DbgLog::Log("[DISABLE_BECLIENT] LdrpGetProcedureAddressForCaller_Hook Function: %s\n", FunctionName->Buffer);
                 else
@@ -771,20 +771,21 @@ namespace BE
                 if (wcsstr(ObjectAttributes->ObjectName->Buffer, L"BattlEye") && wcsstr(ObjectAttributes->ObjectName->Buffer, L"pipe")) // the pipename is \\??\\pipe\\BattlEye 内核名字和应用层不一样
                 {
 
-#if (HOOK_PIPE == 1)
+#if (BYPASS_METHOD_INJECT_GAME && HOOK_PIPE == 1)
                     DbgLog::Log("[HOOK_PIPE] NtCreateFile_Hook Old: %ls New: %ls", ObjectAttributes->ObjectName->Buffer, SERVICE_PROXY_KERNEL);
-#endif
+
                     // DbgLog::Log("NtCreateFile_Hook: pipe hooked");
                     o_RtlInitUnicodeString(ObjectAttributes->ObjectName, SERVICE_PROXY_KERNEL);
+#endif
                     NTSTATUS Status = o_NtCreateFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
                     // o_RtlInitUnicodeString(ObjectAttributes->ObjectName, SERVICE_PIPE_KERNEL); doesn't work
                     return Status;
                 }
-                else if (wcsstr(ObjectAttributes->ObjectName->Buffer, L"BEClient")) {
+                else if (wcsstr(ObjectAttributes->ObjectName->Buffer, L"BEInject_Game")) {
 #if (HOOK_PIPE == 1)
                     DbgLog::Log("-----------------------------------------------------");
                     DbgLog::Log("-----------------------------------------------------");
-                    DbgLog::Log("[HOOK_BEClient] NtCreateFile_Hook(replace with null): %ls", ObjectAttributes->ObjectName->Buffer);
+                    DbgLog::Log("[HOOK_BEInject_Game] NtCreateFile_Hook(replace with null): %ls", ObjectAttributes->ObjectName->Buffer);
                     DbgLog::Log("-----------------------------------------------------");
                     DbgLog::Log("-----------------------------------------------------");
 #endif

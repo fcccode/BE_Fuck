@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Listener.cpp" />
-    <ClCompile Include="CMain.cpp" />
+    <ClCompile Include="cMain.cpp" />
     <ClCompile Include="Kernelmode.cpp" />
     <ClCompile Include="Usermode.cpp" />
   </ItemGroup>

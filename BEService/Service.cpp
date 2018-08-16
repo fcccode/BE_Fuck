@@ -94,7 +94,7 @@ auto GetProcessIdByName = [](char* ProcessName)->DWORD
     if (hSnapshot == INVALID_HANDLE_VALUE || hSnapshot == 0)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         return false;
     }
@@ -102,7 +102,7 @@ auto GetProcessIdByName = [](char* ProcessName)->DWORD
     if (!Process32First(hSnapshot, &pe32))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
         CloseHandle(hSnapshot);
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         return false;
@@ -139,7 +139,7 @@ BOOL KillBattEye() {
         if (errCode == 1060) { // not install
             return TRUE;
         }
-        MyOutputDebugString("[BEService] Couldn't open BEService via openservice %d", GetLastError());
+        MyOutputDebugString("[BEService2] Couldn't open BEService via openservice %d", GetLastError());
         return FALSE;
     }
 
@@ -158,13 +158,13 @@ int main(int argc, CHAR *argv[])
     VirtualizerStart();
     SERVICE_TABLE_ENTRYA ServiceTable[] =
     {
-        { SERVICE_NAME, reinterpret_cast<LPSERVICE_MAIN_FUNCTIONA>(ServiceMain) },
+        { SERVICE2_NAME, reinterpret_cast<LPSERVICE_MAIN_FUNCTIONA>(ServiceMain) },
         { NULL, NULL }
     };
 
     if (StartServiceCtrlDispatcherA(ServiceTable) == FALSE)
     {
-        MyOutputDebugString("[BEService] StartServiceCtrlDispatcher failed");
+        MyOutputDebugString("[BEService2] StartServiceCtrlDispatcher failed");
         return GetLastError();
     }
     VirtualizerEnd();
@@ -181,16 +181,16 @@ void StopMyService(LPCSTR msg = NULL) {
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
     {
-        MyOutputDebugString("[BEService] SetServiceStatus failed.");
+        MyOutputDebugString("[BEService2] SetServiceStatus failed.");
     }
 }
 
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 {
     VirtualizerStart();
-    MyOutputDebugString("[BEService] ServiceMain");
+    MyOutputDebugString("[BEService2] ServiceMain");
     DWORD Status = E_FAIL;
-    g_StatusHandle = RegisterServiceCtrlHandlerA(SERVICE_NAME, ServiceCtrlHandler);
+    g_StatusHandle = RegisterServiceCtrlHandlerA(SERVICE2_NAME, ServiceCtrlHandler);
 
     auto StartErrorToStop = [](LPCSTR msg = NULL)->void {
         if (msg) MyOutputDebugString(msg);
@@ -201,7 +201,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 
         if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
         {
-            MyOutputDebugString("[BEService] SetServiceStatus_0 failed.");
+            MyOutputDebugString("[BEService2] SetServiceStatus_0 failed.");
             ExitProcess(0);
         }
     };
@@ -214,12 +214,12 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
     DWORD HddNumber = 0;
     if (!GetVolumeInformationA("C://", NULL, NULL, &HddNumber, NULL, NULL, NULL, NULL))
     {
-        StartErrorToStop("[BEService] H failed.");
+        StartErrorToStop("[BEService2] H failed.");
         goto EXIT;
     }
     if (HddNumber != HWID_PROTECTION_ID)
     {
-        StartErrorToStop("[BEService] H_2 failed.");
+        StartErrorToStop("[BEService2] H_2 failed.");
         goto EXIT;
     }
 #endif
@@ -233,13 +233,13 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
     {
-        MyOutputDebugString("[BEService] [ServiceMain] SetServiceStatus_3 failed.");
+        MyOutputDebugString("[BEService2] [ServiceMain] SetServiceStatus_3 failed.");
     }
 
     g_ServiceStopEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
     if (g_ServiceStopEvent == NULL)
     {
-        StartErrorToStop("[BEService] [ServiceMain] CreateEventA failed.");
+        StartErrorToStop("[BEService2] [ServiceMain] CreateEventA failed.");
         goto EXIT;
     }
 
@@ -250,7 +250,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
     {
-        MyOutputDebugString("[BEService] [ServiceMain] SetServiceStatus_5 failed.");
+        MyOutputDebugString("[BEService2] [ServiceMain] SetServiceStatus_5 failed.");
     }
 
     g_Thread = CreateThread(NULL, 0, ServiceWorkerThread, NULL, 0, NULL);
@@ -258,10 +258,10 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 
     CloseHandle(g_ServiceStopEvent);
 
-    StopMyService("[BEService] [ServiceMain] WorkerThread stopped, I will exit.");
+    StopMyService("[BEService2] [ServiceMain] WorkerThread stopped, I will exit.");
 
 EXIT:
-    MyOutputDebugString("[BEService] [ServiceMain] Exit...");
+    MyOutputDebugString("[BEService2] [ServiceMain] Exit...");
     VirtualizerEnd();
     return;
 }
@@ -275,7 +275,7 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode)
     switch (CtrlCode)
     {
     case SERVICE_CONTROL_STOP:
-        MyOutputDebugString("[BEService] Receive stop order from control.");
+        MyOutputDebugString("[BEService2] Receive stop order from control.");
         if (g_ServiceStatus.dwCurrentState != SERVICE_RUNNING)
             break;
 
@@ -286,7 +286,7 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode)
 
         if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
         {
-            MyOutputDebugString("[BEService] SetServiceStatus_7 failed.");
+            MyOutputDebugString("[BEService2] SetServiceStatus_7 failed.");
         }
 
         SetEvent(g_ServiceStopEvent);
@@ -307,19 +307,19 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
     SecurityDescriptor = VirtualAlloc(0, SECURITY_DESCRIPTOR_MIN_LENGTH, MEM_COMMIT, PAGE_READWRITE);
     if (!SecurityDescriptor)
     {
-        StopMyService("[BEService] VirtualAlloc failed.");
+        StopMyService("[BEService2] VirtualAlloc failed.");
         return FALSE;
     }
     if (!InitializeSecurityDescriptor(SecurityDescriptor, SECURITY_DESCRIPTOR_REVISION))
     {
-        StopMyService("[BEService] InitializeSecurityDescriptor failed.");
+        StopMyService("[BEService2] InitializeSecurityDescriptor failed.");
         VirtualFree(SecurityDescriptor, 0x1000, MEM_DECOMMIT);
         return FALSE;
     }
 
     if (!SetSecurityDescriptorDacl(SecurityDescriptor, TRUE, 0, FALSE))
     {
-        StopMyService("[BEService] SetSecurityDescriptorDacl failed.");
+        StopMyService("[BEService2] SetSecurityDescriptorDacl failed.");
         VirtualFree(SecurityDescriptor, 0x1000, MEM_DECOMMIT);
         return FALSE;
     }
@@ -333,14 +333,19 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
     // It is an infinite loop until g_ServiceStopEvent.
     while (WaitForSingleObject(g_ServiceStopEvent, 0) != WAIT_OBJECT_0)
     {
+#if BYPASS_METHOD_INJECT_GAME
         g_PipeHandle = CreateNamedPipeA(SERVICE_PROXY, PIPE_ACCESS_INBOUND | PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, PIPE_UNLIMITED_INSTANCES, 4096, 4096, 0, &SecurityAttributes);
+#else
+        // we will listen the old pipe, so don't need to inject to game
+        g_PipeHandle = CreateNamedPipeA(SERVICE_PIPE, PIPE_ACCESS_INBOUND | PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT, PIPE_UNLIMITED_INSTANCES, 4096, 4096, 0, &SecurityAttributes);
+#endif
         if (g_PipeHandle == NULL || g_PipeHandle == INVALID_HANDLE_VALUE)
         {
-            StopMyService("[BEService] CreateNamedPipeA failed.");
+            StopMyService("[BEService2] CreateNamedPipeA failed.");
             VirtualFree(SecurityDescriptor, 0x1000, MEM_DECOMMIT);
             return false;
         }
-        MyOutputDebugString("[BEService] Main thread awaiting client connection...");
+        MyOutputDebugString("[BEService2] Main thread awaiting client connection...");
         while (!ConnectNamedPipe(g_PipeHandle, 0) && GetLastError() != ERROR_PIPE_CONNECTED)
         {
             if (WaitForSingleObject(g_ServiceStopEvent, 0) == WAIT_OBJECT_0)
@@ -348,10 +353,10 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
             Sleep(125);
         }
 
-        MyOutputDebugString("[BEService] Client connected, creating a processing thread");
+        MyOutputDebugString("[BEService2] Inject_Game connected, creating a processing thread");
         if (!(g_PipeThread = CreateThread(0, 0, PipeHandleThread, g_PipeHandle, 0, 0)))
         {
-            StopMyService("[BEService] CreateThread failed.");
+            StopMyService("[BEService2] CreateThread failed.");
             VirtualFree(SecurityDescriptor, 0x1000, MEM_DECOMMIT);
             return FALSE;
         }
@@ -383,18 +388,18 @@ BOOL connectToOldPipe(HANDLE& g_PipeHandle_Old) {
         // Exit if an error other than ERROR_PIPE_BUSY occurs.
         if (GetLastError() != ERROR_PIPE_BUSY)
         {
-            MyOutputDebugString("[BEService] Could not open old pipe. GLE=%d\n", GetLastError());
+            MyOutputDebugString("[BEService2] Could not open old pipe. GLE=%d\n", GetLastError());
             return FALSE;
         }
 
         // All pipe instances are busy, so wait for 20 seconds.
         if (!WaitNamedPipeA(SERVICE_PIPE, 20000))
         {
-            MyOutputDebugString("[BEService] Could not open old pipe: 20 second wait timed out.");
+            MyOutputDebugString("[BEService2] Could not open old pipe: 20 second wait timed out.");
             return FALSE;
         }
     }
-    MyOutputDebugString("[BEService] PipeHandleThread: Old pipe connected.");
+    MyOutputDebugString("[BEService2] PipeHandleThread: Old pipe connected.");
 
     DWORD g_PipeHandle_Old_dwMode = PIPE_READMODE_MESSAGE;
     SetNamedPipeHandleState(g_PipeHandle_Old, &g_PipeHandle_Old_dwMode, NULL, NULL); // Data is read from the pipe as a stream of messages
@@ -404,7 +409,7 @@ BOOL connectToOldPipe(HANDLE& g_PipeHandle_Old) {
 DWORD WINAPI PipeHandleThread(LPVOID lpParam)
 {
     VirtualizerStart();
-    MyOutputDebugString("[BEService] PipeHandleThread created, receiving and processing messages.");
+    MyOutputDebugString("[BEService2] PipeHandleThread created, receiving and processing messages.");
     typedef struct BATTLEYE_DATA
     {
         BYTE ID;
@@ -428,7 +433,7 @@ DWORD WINAPI PipeHandleThread(LPVOID lpParam)
     lpBuffer = VirtualAlloc(0, 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     if (!lpBuffer)
     {
-        StopMyService("[BEService] VirtualAlloc failed.");
+        StopMyService("[BEService2] VirtualAlloc failed.");
         return FALSE;
     }
 
@@ -1061,7 +1066,7 @@ DWORD WINAPI WatchGameThread(LPVOID lpParam)
     DWORD pProcessID = reinterpret_cast<DWORD>(lpParam);
     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pProcessID);
     WaitForSingleObject(hProcess, INFINITE);
-    StopMyService("[BEService] GameOver, I will exit...");
+    StopMyService("[BEService2] GameOver, I will exit...");
     SetEvent(g_ServiceStopEvent);
     CloseHandle(hProcess);
     VirtualizerEnd();

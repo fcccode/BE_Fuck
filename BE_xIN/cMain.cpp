@@ -1,4 +1,4 @@
-#include "CMain.hpp"
+#include "cMain.hpp"
 //=======================================================================================================================================================
 void MyOutputDebugString(LPCSTR lpszFormat, ...)
 {
@@ -55,7 +55,7 @@ bool InjectBypass()
         if (hSnapshot == INVALID_HANDLE_VALUE || hSnapshot == 0)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client_BE] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_BE] [>>] [ERROR] : CreateToolhelp32Snapshot failed with errorcode " << GetLastError() << std::endl;
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             return false;
         }
@@ -63,7 +63,7 @@ bool InjectBypass()
         if (!Process32First(hSnapshot, &pe32))
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client_BE] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_BE] [>>] [ERROR] : Process32First failed with errorcode " << GetLastError() << std::endl;
             CloseHandle(hSnapshot);
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             return false;
@@ -76,7 +76,7 @@ bool InjectBypass()
             if (!lstrcmpiA(pe32.szExeFile, ProcessName) &&
                 !Found)
             {
-                std::cout << "[Client_BE] [>>] Process found! (ID : " << pe32.th32ProcessID << ")" << std::endl;
+                std::cout << "[Inject_BE] [>>] Process found! (ID : " << pe32.th32ProcessID << ")" << std::endl;
                 pProcessIds.push_back(pe32.th32ProcessID);
                 dwPid = pe32.th32ProcessID;
                 break;
@@ -165,7 +165,7 @@ bool InjectBypass()
         return fReturn;
     };
 
-    static auto xRtlCreateUserThread = [](HANDLE ProcessHandle, PSECURITY_DESCRIPTOR SecurityDescriptor, BOOLEAN CreateSuspended, ULONG StackZeroBits, PULONG StackReserved, PULONG StackCommit, PVOID StartAddress, PVOID StartParameter, PHANDLE ThreadHandle, PVOID ClientID)->NTSTATUS
+    static auto xRtlCreateUserThread = [](HANDLE ProcessHandle, PSECURITY_DESCRIPTOR SecurityDescriptor, BOOLEAN CreateSuspended, ULONG StackZeroBits, PULONG StackReserved, PULONG StackCommit, PVOID StartAddress, PVOID StartParameter, PHANDLE ThreadHandle, PVOID Inject_GameID)->NTSTATUS
     {
         static FARPROC Function = 0;
         NTSTATUS Result = -1;
@@ -176,7 +176,7 @@ bool InjectBypass()
                 return -1;
             *reinterpret_cast<DWORD_PTR*>(&Function) ^= 0x7777;
         }
-        return reinterpret_cast<NTSTATUS(NTAPI*)(HANDLE, PSECURITY_DESCRIPTOR, BOOLEAN, ULONG, PULONG, PULONG, PVOID, PVOID, PHANDLE, PVOID)>(*reinterpret_cast<DWORD_PTR*>(&Function) ^ 0x7777)(ProcessHandle, SecurityDescriptor, CreateSuspended, StackZeroBits, StackReserved, StackCommit, StartAddress, StartParameter, ThreadHandle, ClientID);
+        return reinterpret_cast<NTSTATUS(NTAPI*)(HANDLE, PSECURITY_DESCRIPTOR, BOOLEAN, ULONG, PULONG, PULONG, PVOID, PVOID, PHANDLE, PVOID)>(*reinterpret_cast<DWORD_PTR*>(&Function) ^ 0x7777)(ProcessHandle, SecurityDescriptor, CreateSuspended, StackZeroBits, StackReserved, StackCommit, StartAddress, StartParameter, ThreadHandle, Inject_GameID);
     };
 
     auto xCreateRemoteThread = [](HANDLE hProcess, LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)->HANDLE
@@ -193,7 +193,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [>>] [ERROR] : Administrative rights are needed for this bypass!" << std::endl;
+        std::cout << "[Inject_BE] [>>] [ERROR] : Administrative rights are needed for this bypass!" << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -202,7 +202,7 @@ bool InjectBypass()
     if (!GetFullPathNameA("BE_xBP.dll", MAX_PATH, Path, 0))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [ERROR] : GetFullPathNameA failed with errorcode " << GetLastError() << std::endl;
         Status = false;
         goto END;
     }
@@ -213,7 +213,7 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client_BE] [ERROR] : OpenProcessToken failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_BE] [ERROR] : OpenProcessToken failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
@@ -222,7 +222,7 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client_BE] [ERROR] : LookupPrivilegeValueA failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_BE] [ERROR] : LookupPrivilegeValueA failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
@@ -235,26 +235,26 @@ bool InjectBypass()
         if (!bReturn)
         {
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-            std::cout << "[Client_BE] [ERROR] : AdjustTokenPrivileges failed with errorcode " << GetLastError() << std::endl;
+            std::cout << "[Inject_BE] [ERROR] : AdjustTokenPrivileges failed with errorcode " << GetLastError() << std::endl;
             Status = false;
             goto END;
         }
     }
 
-    std::cout << "[Client_BE] ================================================================" << std::endl;
-    std::cout << "[Client_BE] =================";
+    std::cout << "[Inject_BE] ================================================================" << std::endl;
+    std::cout << "[Inject_BE] =================";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
     std::cout << " [BattlEye Bypass] ";
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     std::cout << "================" << std::endl;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-    std::cout << "[Client_BE] ================================================================" << std::endl;
+    std::cout << "[Inject_BE] ================================================================" << std::endl;
     if (dwCounts == 1)
-        std::cout << "[Client_BE] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
+        std::cout << "[Inject_BE] [>>] Bypass has been injected in " << dwCounts << " process" << std::endl;
     if (dwCounts > 1)
-        std::cout << "[Client_BE] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
-    std::cout << "[Client_BE] [>>] Waiting for " << GAME_BE_EXE << std::endl;
-    std::cout << "[Client_BE] ================================================================" << std::endl;
+        std::cout << "[Inject_BE] [>>] Bypass has been injected in " << dwCounts << " processes" << std::endl;
+    std::cout << "[Inject_BE] [>>] Waiting for " << GAME_BE_EXE << std::endl;
+    std::cout << "[Inject_BE] ================================================================" << std::endl;
     lastId = 0;
     while (!(lastId = GetProcessId(GAME_BE_EXE)))
         Sleep(50);
@@ -267,7 +267,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [>>] [ERROR] : CheckRemoteDebuggerPresent failed with errorcode (lpBaseOfDll) " << dwError << " or Debugger found " << isDebug << std::endl;
+        std::cout << "[Inject_BE] [>>] [ERROR] : CheckRemoteDebuggerPresent failed with errorcode (lpBaseOfDll) " << dwError << " or Debugger found " << isDebug << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -278,7 +278,7 @@ bool InjectBypass()
     {
         dwError = GetLastError();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [>>] [ERROR] : GetProcessBase failed with errorcode (lpBaseOfDll)" << 0 << std::endl;
+        std::cout << "[Inject_BE] [>>] [ERROR] : GetProcessBase failed with errorcode (lpBaseOfDll)" << 0 << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         Status = false;
         goto END;
@@ -298,42 +298,42 @@ bool InjectBypass()
     if (!lpString)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [ERROR] : VirtualAllocEx failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [ERROR] : VirtualAllocEx failed with errorcode " << GetLastError() << std::endl;
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client_BE] Hook: Path allocated at " << lpString << std::endl;
+    std::cout << "[Inject_BE] Hook: Path allocated at " << lpString << std::endl;
 
     if (!WriteProcessMemory(hProcess, lpString, Path, strlen(Path) + 1, 0))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [ERROR] : WriteProcessMemory failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [ERROR] : WriteProcessMemory failed with errorcode " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, lpString, strlen(Path), MEM_DECOMMIT);
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client_BE] Hook: Path has been written " << Path << std::endl;
+    std::cout << "[Inject_BE] Hook: Path has been written " << Path << std::endl;
 
     hThread = CreateRemoteThread(hProcess, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(lpLoadLibAddress), lpString, 0, &TID);
     if (!hThread)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-        std::cout << "[Client_BE] [ERROR] : CreateRemoteThread failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [ERROR] : CreateRemoteThread failed with errorcode " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, lpString, strlen(Path), MEM_DECOMMIT);
         CloseHandle(hProcess);
         goto END;
     }
 
-    std::cout << "[Client_BE] Hook: Thread has been created! (ID : " << TID << ", HANDLE : " << hThread << ")" << std::endl;
+    std::cout << "[Inject_BE] Hook: Thread has been created! (ID : " << TID << ", HANDLE : " << hThread << ")" << std::endl;
 
     WaitForSingleObject(hThread, INFINITE);
 
     if (VirtualFreeEx(hProcess, lpString, strlen(Path) + 1, MEM_DECOMMIT) &&
         CloseHandle(hProcess))
     {
-        std::cout << "[Client_BE] Hook: Path has been deallocated and the handle to the process has been closed." << std::endl;
+        std::cout << "[Inject_BE] Hook: Path has been deallocated and the handle to the process has been closed." << std::endl;
         goto END;
     }
 
@@ -344,7 +344,7 @@ END:
         CloseHandle(hProcess);
     hProcess = INVALID_HANDLE_VALUE;
 
-    std::cout << "[Client_BE] Exit..." << std::endl;
+    std::cout << "[Inject_BE] Exit..." << std::endl;
 #if _DEBUG
     getchar();
 #else
@@ -365,18 +365,18 @@ int main()
     if (!SetConsoleTitleA("486373d32gh346634738s"))
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY);
-        std::cout << "[Client_BE] [>>] [WARNING] : SetConsoleTitleA failed with errorcode " << GetLastError() << std::endl;
+        std::cout << "[Inject_BE] [>>] [WARNING] : SetConsoleTitleA failed with errorcode " << GetLastError() << std::endl;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     }
-    if (ControlDriver("BEService.exe", FALSE))
-        std::cout << "[Client_BE] Stop service " << SERVICE_NAME << " returned TRUE." << std::endl;
+    if (ControlDriver("BEService2.exe", FALSE))
+        std::cout << "[Inject_BE] Stop service " << SERVICE2_NAME << " returned TRUE." << std::endl;
     else
-        std::cout << "[Client_BE] Stop service " << SERVICE_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
+        std::cout << "[Inject_BE] Stop service " << SERVICE2_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
     Sleep(220); // wait for delete service
-    if (ControlDriver("BEService.exe", TRUE))
-        std::cout << "[Client_BE] Start service " << SERVICE_NAME << " returned TRUE." << std::endl;
+    if (ControlDriver("BEService2.exe", TRUE))
+        std::cout << "[Inject_BE] Start service " << SERVICE2_NAME << " returned TRUE." << std::endl;
     else
-        std::cout << "[Client_BE] Start service " << SERVICE_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
+        std::cout << "[Inject_BE] Start service " << SERVICE2_NAME << " returned FALSE. (see DebugView for more information)" << std::endl;
     while (true)
     {
         Sleep(520);
@@ -517,7 +517,7 @@ BOOL WINAPI ControlDriver(LPCSTR lpFilename, BOOL Status)
     g_SCHandle = OpenSCManagerA(0, 0, SC_MANAGER_ALL_ACCESS);
     if (!g_SCHandle)
         return FALSE;
-    g_DaisyHandle = OpenServiceA(g_SCHandle, SERVICE_NAME, SERVICE_ALL_ACCESS);
+    g_DaisyHandle = OpenServiceA(g_SCHandle, SERVICE2_NAME, SERVICE_ALL_ACCESS);
     if (Status == TRUE)
     {
         if (g_DaisyHandle && g_DaisyHandle != INVALID_HANDLE_VALUE)
@@ -526,7 +526,7 @@ BOOL WINAPI ControlDriver(LPCSTR lpFilename, BOOL Status)
             WaitForSingleObject(g_DaisyHandle, INFINITE);
             if (!StartServiceA(reinterpret_cast<SC_HANDLE>(g_DaisyHandle), 0, 0))
             {
-                MyOutputDebugString("[Client_BE] Couldn't start the driver_1 %d", GetLastError());
+                MyOutputDebugString("[Inject_BE] Couldn't start the driver_1 %d", GetLastError());
                 return FALSE;
             }
             CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_DaisyHandle));
@@ -535,30 +535,30 @@ BOOL WINAPI ControlDriver(LPCSTR lpFilename, BOOL Status)
         }
         if (!GetFullPathNameA(lpFilename, MAX_PATH, Path, 0))
         {
-            MyOutputDebugString("[Client_BE] Couldn't find the driver_1 %d", GetLastError());
+            MyOutputDebugString("[Inject_BE] Couldn't find the driver_1 %d", GetLastError());
             return FALSE;
         }
         Result = CreateFileA(lpFilename, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0);
         if (!Result || Result == INVALID_HANDLE_VALUE)
         {
-            MyOutputDebugString("[Client_BE] Couldn't find the driver_2 %d", GetLastError());
+            MyOutputDebugString("[Inject_BE] Couldn't find the driver_2 %d", GetLastError());
             return FALSE;
         }
         CloseHandle(Result);
         WaitForSingleObject(g_DaisyHandle, INFINITE);
         CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_DaisyHandle));
         g_DaisyHandle = 0;
-        g_DaisyHandle = CreateServiceA(g_SCHandle, SERVICE_NAME, SERVICE_SHOW_NAME, 0x10034, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, Path, 0, 0, 0, 0, 0);
+        g_DaisyHandle = CreateServiceA(g_SCHandle, SERVICE2_NAME, SERVICE2_SHOW_NAME, 0x10034, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, Path, 0, 0, 0, 0, 0);
         if (!g_DaisyHandle || g_DaisyHandle == INVALID_HANDLE_VALUE)
         {
-            MyOutputDebugString("[Client_BE] Couldn't create the driver %d", GetLastError());
+            MyOutputDebugString("[Inject_BE] Couldn't create the driver %d", GetLastError());
             CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_DaisyHandle));
             CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_SCHandle));
             return FALSE;
         }
         if (!StartServiceA(reinterpret_cast<SC_HANDLE>(g_DaisyHandle), 0, 0))
         {
-            MyOutputDebugString("[Client_BE] Couldn't start the driver_2 %d", GetLastError());
+            MyOutputDebugString("[Inject_BE] Couldn't start the driver_2 %d", GetLastError());
             CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_DaisyHandle));
             CloseServiceHandle(reinterpret_cast<SC_HANDLE>(g_SCHandle));
             return FALSE;
@@ -574,7 +574,7 @@ BOOL WINAPI ControlDriver(LPCSTR lpFilename, BOOL Status)
         if (errCode == 1060) { // not install
             return TRUE;
         }
-        MyOutputDebugString("[Client_BE] Couldn't open the driver via openservice %d", GetLastError());
+        MyOutputDebugString("[Inject_BE] Couldn't open the driver via openservice %d", GetLastError());
         return FALSE;
     }
 
