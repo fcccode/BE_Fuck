@@ -18,7 +18,7 @@
 // Inject GAME_EXE to change the pipe name, set to 1
 // Kill BEService to use old pipe name, set to 0
 // Use BE_Listener to capture the packets, set to 0
-#define BYPASS_METHOD_INJECT_GAME   1
+#define BYPASS_METHOD_INJECT_GAME   0
 #define BESERVICE_LISTENER_MODE     BYPASS_METHOD_INJECT_GAME
 
 
